@@ -1,0 +1,13 @@
+[tool.basedpyright]
+# Tell basedpyright to look for the venv in the current directory
+venvPath = "."
+venv = "venv"
+typeCheckingMode = "basic"
+
+[tool.ruff]
+# Standard Python settings
+line-length = 88
+target-version = "py314"
+
+[tool.pytest.ini_options]
+anyio_mode = "auto"
