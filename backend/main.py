@@ -1,7 +1,7 @@
 import os
 
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from endpoints import endpoint_router
 
@@ -11,9 +11,9 @@ app = FastAPI()
 app.include_router(endpoint_router)
 
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 async def main():
-    return {"Message": "Hello World!"}
+    return RedirectResponse(url="/docs")
 
 
 @app.get("/health")
