@@ -3,7 +3,7 @@ import os
 
 # The socket to bind to (Render provides the PORT env var)
 port = os.getenv("PORT", "8000")
-bind = f"0.0.0.0:{port}"
+bind = f"0.0.0.0:{port}/docs"
 
 # Worker configuration
 # Usually: (2 x $num_cores) + 1

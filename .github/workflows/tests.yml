@@ -1,0 +1,38 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12" # Using 3.12 for stability in CI
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio
+
+      - name: Run Tests
+        run: |
+          cd backend
+          export PYTHONPATH=$PYTHONPATH:.
+          pytest
+
+      - name: Verify Live Service
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # Wait 30 seconds for Render to finish the swap
+          sleep 30
+          curl -f https://makeitdone-api.onrender.com/health || exit 1
