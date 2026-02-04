@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from .converter import img_convert
+from .converter import convert_api
 
 endpoint_router = APIRouter()
 
-endpoint_router.include_router(img_convert)
+endpoint_router.include_router(convert_api)

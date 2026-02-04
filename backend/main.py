@@ -19,5 +19,5 @@ async def main():
 @app.get("/health")
 async def health_check():
     return JSONResponse(
-        content={"status": "healthy", "service": "image-converter"}, status_code=200
+        content={"status": "healthy", "service": "converter_api"}, status_code=200
     )

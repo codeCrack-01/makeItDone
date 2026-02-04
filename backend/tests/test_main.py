@@ -7,4 +7,4 @@ async def test_health_check(client):
     response = await client.get("/health")
 
     assert response.status_code == 200
-    assert response.json() == {"status": "healthy", "service": "image-converter"}
+    assert response.json() == {"status": "healthy", "service": "converter_api"}
