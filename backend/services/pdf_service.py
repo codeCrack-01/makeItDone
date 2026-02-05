@@ -6,7 +6,7 @@ from pdf2image import convert_from_bytes
 
 from utils import image_generator
 
-from .img_services.compress_service import compress_jpg_to_200kb
+from .img_services.modify_service import compress_jpg_to_200kb
 
 
 def convert_images_to_pdf(image_data_list: Iterable[io.BytesIO]) -> io.BytesIO | None:

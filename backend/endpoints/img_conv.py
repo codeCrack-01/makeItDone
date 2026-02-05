@@ -4,10 +4,13 @@ from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import StreamingResponse
 from PIL import Image
 
-from services.img_services.compress_service import compress_jpg_to_200kb
 from services.img_services.convert_service import (
     convert_jpg_to_png,
     convert_png_to_jpg,
+)
+from services.img_services.modify_service import (
+    compress_jpg_to_200kb,
+    remove_transparency_from_image,
 )
 from utils import filter_file_name
 
@@ -65,6 +68,27 @@ async def compress__image_to_200kb(file: UploadFile = File(...)):
 
     return StreamingResponse(
         compressed_buf,
+        media_type="image/jpeg",
+        headers={
+            "Content-Disposition": f"attachment; filename={original_name}_compressed.jpg"
+        },
+    )
+
+
+@img_api.post("/remove_transparency", tags=["modify"])
+async def remove_transparency_endpoint(file: UploadFile = File(...)):
+    img_bytes = await file.read()
+    img = Image.open(io.BytesIO(img_bytes)).convert("RGBA")
+
+    original_name = filter_file_name(file.filename)
+    result_img = remove_transparency_from_image(img)
+
+    buffer = io.BytesIO()
+    result_img.save(buffer, format="JPEG")
+    buffer.seek(0)
+
+    return StreamingResponse(
+        buffer,
         media_type="image/jpeg",
         headers={
             "Content-Disposition": f"attachment; filename={original_name}_compressed.jpg"
