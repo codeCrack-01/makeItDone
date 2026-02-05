@@ -1,21 +1,20 @@
 import io
-from datetime import datetime
-from typing import List
 
 from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import StreamingResponse
+from PIL import Image
 
-from services.convert_service import (
-    convert_images_to_pdf,
+from services.img_services.compress_service import compress_jpg_to_200kb
+from services.img_services.convert_service import (
     convert_jpg_to_png,
     convert_png_to_jpg,
 )
 from utils import filter_file_name
 
-convert_api = APIRouter(prefix="/convert")
+img_api = APIRouter(prefix="/images", tags=["images"])
 
 
-@convert_api.post("/png_to_jpg")
+@img_api.post("/png_to_jpg", tags=["convert"])
 async def convert__png_to_jpg(file: UploadFile = File(...)):
     content = await file.read()
     img_buffer = convert_png_to_jpg(content)
@@ -34,7 +33,7 @@ async def convert__png_to_jpg(file: UploadFile = File(...)):
     )
 
 
-@convert_api.post("/jpg_to_png")
+@img_api.post("/jpg_to_png", tags=["convert"])
 async def convert__jpg_to_png(file: UploadFile = File(...)):
     content = await file.read()
     img_buffer = convert_jpg_to_png(content)
@@ -53,18 +52,21 @@ async def convert__jpg_to_png(file: UploadFile = File(...)):
     )
 
 
-@convert_api.post("/images_to_pdf")
-async def convert__images_to_pdf(files: List[UploadFile] = File(...)):
-    image_buffers = [io.BytesIO(await file.read()) for file in files]
+@img_api.post("/compress_to_200kb", tags=["compress"])
+async def compress__image_to_200kb(file: UploadFile = File(...)):
+    img_bytes = await file.read()
+    img = Image.open(io.BytesIO(img_bytes))
 
-    time_stamp = datetime.now().isoformat()
+    if img.mode in ("RGBA", "P"):
+        img = img.convert("RGB")
 
-    pdf_result = convert_images_to_pdf(image_buffers)
-    if pdf_result is None:
-        return {"error": "Invalid Image OR Image Not Found !"}
+    original_name = filter_file_name(file.filename)
+    compressed_buf = compress_jpg_to_200kb(img)
 
     return StreamingResponse(
-        pdf_result,
-        media_type="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename={time_stamp}.pdf"},
+        compressed_buf,
+        media_type="image/jpeg",
+        headers={
+            "Content-Disposition": f"attachment; filename={original_name}_compressed.jpg"
+        },
     )
