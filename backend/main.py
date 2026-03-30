@@ -13,9 +13,15 @@ app.include_router(endpoint_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    # 1. Only origins (URLs) go here
+    allow_origins=[
+        "http://localhost:5173",  # Local Vite dev server
+        "https://makeitdone-frontend.onrender.com",  # Your live Render site
+    ],
     allow_credentials=True,
+    # 2. Methods are HTTP actions, NOT URLs
     allow_methods=["*"],
+    # 3. Headers are metadata, NOT URLs
     allow_headers=["*"],
 )
 
